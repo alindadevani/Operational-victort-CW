@@ -1,0 +1,6 @@
+/*
+ * File ini disiapkan untuk keperluan Vite build process opsional.
+ * Secara default project ini memakai Tailwind CSS via CDN
+ * (lihat resources/views/layouts/app.blade.php dan layouts/guest.blade.php),
+ * jadi file ini boleh dikosongkan/tidak dipakai.
+ */
