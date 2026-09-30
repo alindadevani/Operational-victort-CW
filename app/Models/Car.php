@@ -15,6 +15,7 @@ class Car extends Model
         'plat_nomor',
         'status',
         'keterangan',
+        'foto',
     ];
 
     /**

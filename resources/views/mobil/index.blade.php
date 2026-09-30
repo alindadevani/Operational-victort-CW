@@ -13,6 +13,7 @@
                 <thead class="bg-gray-50 text-gray-500 text-left">
                     <tr>
                         <th class="px-5 py-3 font-medium">#</th>
+                        <th class="px-5 py-3 font-medium">Foto</th>
                         <th class="px-5 py-3 font-medium">Nama Mobil</th>
                         <th class="px-5 py-3 font-medium">Plat Nomor</th>
                         <th class="px-5 py-3 font-medium">Status</th>
@@ -24,6 +25,13 @@
                     @forelse ($cars as $car)
                         <tr class="hover:bg-gray-50">
                             <td class="px-5 py-3 text-gray-500">{{ $loop->iteration + ($cars->currentPage() - 1) * $cars->perPage() }}</td>
+                            <td class="px-5 py-3">
+                                @if ($car->foto)
+                                    <img src="{{ asset('storage/'.$car->foto) }}" alt="Foto {{ $car->nama_mobil }}" class="h-14 w-20 rounded-md border border-gray-200 object-cover">
+                                @else
+                                    <span class="text-xs text-gray-400">Belum ada foto</span>
+                                @endif
+                            </td>
                             <td class="px-5 py-3 font-medium text-gray-800">{{ $car->nama_mobil }}</td>
                             <td class="px-5 py-3 text-gray-600">{{ $car->plat_nomor }}</td>
                             <td class="px-5 py-3">
@@ -45,7 +53,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-8 text-center text-gray-400">Belum ada data mobil.</td>
+                            <td colspan="7" class="px-5 py-8 text-center text-gray-400">Belum ada data mobil.</td>
                         </tr>
                     @endforelse
                 </tbody>

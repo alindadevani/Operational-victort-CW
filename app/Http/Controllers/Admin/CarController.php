@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CarRequest;
 use App\Models\Car;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class CarController extends Controller
@@ -27,7 +28,14 @@ class CarController extends Controller
 
     public function store(CarRequest $request): RedirectResponse
     {
-        Car::create($request->validated());
+        $data = $request->validated();
+        unset($data['foto']);
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('cars', 'public');
+        }
+
+        Car::create($data);
 
         return redirect()
             ->route('admin.cars.index')
@@ -41,7 +49,20 @@ class CarController extends Controller
 
     public function update(CarRequest $request, Car $car): RedirectResponse
     {
-        $car->update($request->validated());
+        $data = $request->validated();
+        unset($data['foto']);
+
+        if ($request->hasFile('foto')) {
+            $oldPhoto = $car->foto;
+            $data['foto'] = $request->file('foto')->store('cars', 'public');
+            $car->update($data);
+
+            if ($oldPhoto) {
+                Storage::disk('public')->delete($oldPhoto);
+            }
+        } else {
+            $car->update($data);
+        }
 
         return redirect()
             ->route('admin.cars.index')
@@ -58,6 +79,9 @@ class CarController extends Controller
         }
 
         $car->delete();
+        if ($car->foto) {
+            Storage::disk('public')->delete($car->foto);
+        }
 
         return redirect()
             ->route('admin.cars.index')

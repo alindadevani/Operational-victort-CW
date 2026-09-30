@@ -49,7 +49,7 @@
             class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
         >
             <div class="flex items-center justify-center h-16 border-b border-gray-200 px-4">
-                <img src="{{ asset('images/logo-victory.png') }}" alt="PT Victory International Futures" class="h-9 w-auto object-contain">
+                <img src="{{ asset('images/logo-victory.png') }}" alt="PT Victory International Futures" class="h-12 w-auto object-contain">
             </div>
 
             <nav class="mt-4 px-2 space-y-1">

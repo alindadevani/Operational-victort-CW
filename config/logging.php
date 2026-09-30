@@ -5,7 +5,7 @@ use Monolog\Handler\StreamHandler;
 
 return [
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', env('VERCEL') ? 'stderr' : 'stack'),
 
     'deprecations' => [
         'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
@@ -30,6 +30,16 @@ return [
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,
+        ],
+
+        // Log dibaca dari Vercel Logs, bukan ditulis ke disk aplikasi.
+        'stderr' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'with' => [
+                'stream' => 'php://stderr',
+            ],
+            'level' => env('LOG_LEVEL', 'error'),
         ],
 
     ],

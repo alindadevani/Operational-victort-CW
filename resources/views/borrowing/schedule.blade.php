@@ -35,10 +35,10 @@
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-            <p class="text-xs text-gray-400 uppercase tracking-wider">Jadwal terpilih</p>
-            <h3 class="font-display text-xl text-ink mt-1">{{ $tanggalTerpilih->translatedFormat('l, d F Y') }}</h3>
+            <p class="text-sm text-gray-600 uppercase tracking-wider">Jadwal terpilih</p>
+            <h3 class="font-display text-2xl text-ink mt-1">{{ $tanggalTerpilih->translatedFormat('l, d F Y') }}</h3>
         </div>
-        <div class="flex items-center gap-2 text-xs text-gray-500">
+        <div class="flex items-center gap-2 text-sm text-gray-700">
             <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
             Tersedia
             <span class="w-2.5 h-2.5 rounded-full bg-red-400 ml-3"></span>
@@ -47,35 +47,35 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-        <div class="bg-white border border-gray-100 rounded-xl px-4 py-3">
-            <p class="text-xs text-gray-400">Slot terisi</p>
-            <p class="font-display text-2xl text-ink mt-1">{{ $totalTerisi }} <span class="font-sans text-sm text-gray-400">/ {{ $totalKuota }}</span></p>
+        <div class="bg-white border border-gray-200 rounded-xl px-5 py-4">
+            <p class="text-sm text-gray-600">Slot terisi</p>
+            <p class="font-display text-3xl text-ink mt-1">{{ $totalTerisi }} <span class="font-sans text-base text-gray-600">/ {{ $totalKuota }}</span></p>
         </div>
-        <div class="bg-white border border-gray-100 rounded-xl px-4 py-3">
-            <p class="text-xs text-gray-400">Slot tersedia</p>
-            <p class="font-display text-2xl text-primary-dark mt-1">{{ $totalKuota - $totalTerisi }}</p>
+        <div class="bg-white border border-gray-200 rounded-xl px-5 py-4">
+            <p class="text-sm text-gray-600">Slot tersedia</p>
+            <p class="font-display text-3xl text-primary-dark mt-1">{{ $totalKuota - $totalTerisi }}</p>
         </div>
-        <div class="bg-white border border-gray-100 rounded-xl px-4 py-3">
-            <p class="text-xs text-gray-400">Kapasitas terpakai</p>
-            <p class="font-display text-2xl text-ink mt-1">{{ $persentaseTerisi }}<span class="font-sans text-sm text-gray-400">%</span></p>
+        <div class="bg-white border border-gray-200 rounded-xl px-5 py-4">
+            <p class="text-sm text-gray-600">Kapasitas terpakai</p>
+            <p class="font-display text-3xl text-ink mt-1">{{ $persentaseTerisi }}<span class="font-sans text-base text-gray-600">%</span></p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         @foreach ($jadwal as $slot)
             @php
                 $slotPenuh = $slot['terisi'] >= $slot['kuota'];
                 $slotHampirPenuh = !$slotPenuh && $slot['terisi'] > 0;
             @endphp
-            <div class="relative bg-white rounded-xl border border-gray-100 overflow-hidden {{ $slotPenuh ? 'shadow-sm' : 'hover:shadow-md' }} transition-shadow">
+            <div class="relative bg-white rounded-xl border border-gray-200 overflow-hidden {{ $slotPenuh ? 'shadow-sm' : 'hover:shadow-md' }} transition-shadow">
                 <div class="h-1 {{ $slotPenuh ? 'bg-red-400' : ($slotHampirPenuh ? 'bg-amber-400' : 'bg-primary') }}"></div>
-                <div class="p-5">
+                <div class="p-6">
                     <div class="flex items-start justify-between gap-3 mb-5">
                         <div>
-                            <p class="text-xs text-gray-400 mb-1">Slot waktu</p>
-                            <h3 class="font-display text-xl text-ink">{{ $slot['label'] }}</h3>
+                            <p class="text-sm text-gray-600 mb-1">Slot waktu</p>
+                            <h3 class="font-display text-2xl text-ink">{{ $slot['label'] }}</h3>
                         </div>
-                        <span class="shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $slotPenuh ? 'bg-red-50 text-red-600' : ($slotHampirPenuh ? 'bg-amber-50 text-amber-700' : 'bg-primary-light text-primary-dark') }}">
+                        <span class="shrink-0 inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold {{ $slotPenuh ? 'bg-red-50 text-red-700' : ($slotHampirPenuh ? 'bg-amber-50 text-amber-800' : 'bg-primary-light text-primary-dark') }}">
                             {{ $slot['terisi'] }} / {{ $slot['kuota'] }} terisi
                         </span>
                     </div>
@@ -85,20 +85,20 @@
                     </div>
 
                     @forelse ($slot['daftar_booking'] as $booking)
-                        <div class="flex items-center gap-3 py-3 border-t border-gray-100 first:border-t-0">
-                            <div class="w-9 h-9 rounded-lg {{ $booking->status === 'Ditolak' ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500' }} flex items-center justify-center shrink-0 text-sm font-semibold">
+                        <div class="flex items-center gap-3 py-4 border-t border-gray-200 first:border-t-0">
+                            <div class="w-10 h-10 rounded-lg {{ $booking->status === 'Ditolak' ? 'bg-red-50 text-red-700' : 'bg-gray-100 text-gray-600' }} flex items-center justify-center shrink-0 text-base font-semibold">
                                 {{ strtoupper(substr($booking->nama, 0, 1)) }}
                             </div>
-                            <div class="min-w-0">
-                                <p class="text-sm font-medium text-ink truncate">{{ $booking->nama }}</p>
-                                <p class="text-xs text-gray-400 truncate">{{ $booking->team?->nama_team ?? '-' }} · {{ $booking->car?->nama_mobil ?? 'Menunggu persetujuan' }}</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-base font-semibold text-ink break-words">{{ $booking->nama }}</p>
+                                <p class="text-sm text-gray-600 break-words">{{ $booking->team?->nama_team ?? '-' }} · {{ $booking->car?->nama_mobil ?? 'Menunggu persetujuan' }}</p>
                             </div>
-                            <span class="ml-auto shrink-0 text-[10px] font-medium {{ $booking->status === 'Selesai' ? 'text-blue-600' : ($booking->status === 'Disetujui' ? 'text-primary-dark' : 'text-amber-600') }}">
+                            <span class="ml-auto shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold {{ $booking->status === 'Selesai' ? 'bg-blue-50 text-blue-700' : ($booking->status === 'Disetujui' ? 'bg-primary-light text-primary-dark' : ($booking->status === 'Ditolak' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-800')) }}">
                                 {{ $booking->status === 'Menunggu Persetujuan' ? 'Menunggu' : $booking->status }}
                             </span>
                         </div>
                     @empty
-                        <div class="flex items-center gap-2 py-2 text-sm text-gray-400">
+                        <div class="flex items-center gap-2 py-2 text-base text-gray-600">
                             <span class="w-2 h-2 rounded-full bg-gray-200"></span>
                             Slot ini masih kosong
                         </div>

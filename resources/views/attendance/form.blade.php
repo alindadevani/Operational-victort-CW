@@ -99,7 +99,7 @@
 
                     <div id="errorKamera" class="hidden mt-2 text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg p-3"></div>
 
-                    <div class="flex gap-2 mt-3">
+                    <div id="controlsKamera" class="flex gap-2 mt-3">
                         <button type="button" id="btnAmbilFoto"
                             class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -112,6 +112,12 @@
                             class="hidden flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition">
                             Ambil Ulang
                         </button>
+                    </div>
+
+                    <div id="fallbackFoto" class="hidden mt-3">
+                        <label for="fotoPerangkat" class="block text-sm font-medium text-gray-700 mb-1">Ambil foto dari kamera HP atau pilih dari galeri</label>
+                        <input type="file" id="fotoPerangkat" accept="image/*" capture="environment"
+                            class="w-full rounded-lg border border-gray-300 bg-white text-sm text-gray-700 file:mr-4 file:border-0 file:bg-gray-100 file:px-4 file:py-2.5 file:text-sm file:font-medium">
                     </div>
 
                     <input type="hidden" name="foto" id="foto_input" value="{{ old('foto') }}">
@@ -140,6 +146,9 @@
         const btnAmbilFoto = document.getElementById('btnAmbilFoto');
         const btnUlangFoto = document.getElementById('btnUlangFoto');
         const btnSwitchKamera = document.getElementById('btnSwitchKamera');
+        const controlsKamera = document.getElementById('controlsKamera');
+        const fallbackFoto = document.getElementById('fallbackFoto');
+        const fotoPerangkat = document.getElementById('fotoPerangkat');
         const fotoInput = document.getElementById('foto_input');
         const canvas = document.getElementById('canvasTersembunyi');
         const btnSubmit = document.getElementById('btnSubmit');
@@ -147,6 +156,7 @@
 
         let modeKameraSaatIni = 'environment';
         let streamAktif = null;
+        let fallbackKameraAktif = false;
 
         function tampilkanErrorKamera(pesan) {
             errorKamera.textContent = pesan;
@@ -155,9 +165,69 @@
             btnAmbilFoto.classList.add('opacity-50', 'cursor-not-allowed');
         }
 
+        function gunakanFallbackFoto(pesan) {
+            fallbackKameraAktif = true;
+            tampilkanErrorKamera(pesan);
+            areaKamera.classList.add('hidden');
+            controlsKamera.classList.add('hidden');
+            fallbackFoto.classList.remove('hidden');
+        }
+
+        function simpanFoto(dataUrl) {
+            fotoInput.value = dataUrl;
+            previewFoto.src = dataUrl;
+            areaKamera.classList.add('hidden');
+            areaPreview.classList.remove('hidden');
+            fallbackFoto.classList.add('hidden');
+            controlsKamera.classList.remove('hidden');
+            btnAmbilFoto.classList.add('hidden');
+            btnUlangFoto.classList.remove('hidden');
+            btnSubmit.disabled = false;
+            btnSubmit.classList.remove('bg-gray-300', 'cursor-not-allowed');
+            btnSubmit.classList.add('bg-primary', 'hover:bg-primary-dark');
+            pesanFotoWajib.classList.add('hidden');
+
+            if (streamAktif) {
+                streamAktif.getTracks().forEach(track => track.stop());
+                streamAktif = null;
+            }
+        }
+
+        function prosesFotoPerangkat(file) {
+            if (!file.type.startsWith('image/')) {
+                gunakanFallbackFoto('File yang dipilih bukan gambar. Pilih foto dari kamera atau galeri.');
+                return;
+            }
+
+            const image = new Image();
+            const imageUrl = URL.createObjectURL(file);
+
+            image.onload = function () {
+                const batasPanjang = 1280;
+                const skala = Math.min(1, batasPanjang / Math.max(image.width, image.height));
+                canvas.width = Math.round(image.width * skala);
+                canvas.height = Math.round(image.height * skala);
+                canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(imageUrl);
+                simpanFoto(canvas.toDataURL('image/jpeg', 0.8));
+            };
+
+            image.onerror = function () {
+                URL.revokeObjectURL(imageUrl);
+                gunakanFallbackFoto('Foto tidak dapat dibuka. Coba pilih gambar JPG atau PNG.');
+            };
+
+            image.src = imageUrl;
+        }
+
         async function nyalakanKamera(mode) {
+            if (!window.isSecureContext) {
+                gunakanFallbackFoto('Kamera langsung memerlukan HTTPS. Ambil foto melalui kamera HP atau pilih dari galeri di bawah.');
+                return;
+            }
+
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                tampilkanErrorKamera('Browser ini tidak mendukung kamera. Gunakan Chrome, Safari, atau browser modern lainnya.');
+                gunakanFallbackFoto('Kamera langsung tidak tersedia di browser ini. Ambil foto melalui kamera HP atau pilih dari galeri.');
                 return;
             }
 
@@ -182,11 +252,9 @@
                     pesan = 'Akses kamera ditolak. Izinkan kamera melalui pengaturan browser, lalu muat ulang halaman ini.';
                 } else if (error.name === 'NotFoundError') {
                     pesan = 'Kamera tidak ditemukan pada perangkat ini.';
-                } else if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                    pesan = 'Kamera hanya dapat digunakan melalui HTTPS atau localhost/127.0.0.1.';
                 }
 
-                tampilkanErrorKamera(pesan);
+                gunakanFallbackFoto(pesan + ' Anda juga bisa memilih foto dari kamera atau galeri.');
             }
         }
 
@@ -207,34 +275,33 @@
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            fotoInput.value = dataUrl;
-            previewFoto.src = dataUrl;
-            areaKamera.classList.add('hidden');
-            areaPreview.classList.remove('hidden');
-            btnAmbilFoto.classList.add('hidden');
-            btnUlangFoto.classList.remove('hidden');
-            btnSubmit.disabled = false;
-            btnSubmit.classList.remove('bg-gray-300', 'cursor-not-allowed');
-            btnSubmit.classList.add('bg-primary', 'hover:bg-primary-dark');
-            pesanFotoWajib.classList.add('hidden');
+            simpanFoto(canvas.toDataURL('image/jpeg', 0.85));
+        });
 
-            if (streamAktif) {
-                streamAktif.getTracks().forEach(track => track.stop());
-                streamAktif = null;
-            }
+        fotoPerangkat.addEventListener('change', function () {
+            const file = fotoPerangkat.files[0];
+            if (file) prosesFotoPerangkat(file);
         });
 
         btnUlangFoto.addEventListener('click', function () {
             fotoInput.value = '';
-            areaKamera.classList.remove('hidden');
             areaPreview.classList.add('hidden');
-            btnAmbilFoto.classList.remove('hidden');
+            fotoPerangkat.value = '';
             btnUlangFoto.classList.add('hidden');
             btnSubmit.disabled = true;
             btnSubmit.classList.add('bg-gray-300', 'cursor-not-allowed');
             btnSubmit.classList.remove('bg-primary', 'hover:bg-primary-dark');
             pesanFotoWajib.classList.remove('hidden');
+
+            if (fallbackKameraAktif) {
+                fallbackFoto.classList.remove('hidden');
+                controlsKamera.classList.add('hidden');
+                return;
+            }
+
+            areaKamera.classList.remove('hidden');
+            controlsKamera.classList.remove('hidden');
+            btnAmbilFoto.classList.remove('hidden');
             nyalakanKamera(modeKameraSaatIni);
         });
 

@@ -47,7 +47,7 @@
 
         <div class="relative z-10 flex items-center gap-3">
             <div class="bg-white rounded-lg px-2 py-1.5">
-                <img src="{{ asset('images/logo-victory.png') }}" alt="PT Victory International Futures" class="h-6 w-auto object-contain">
+                <img src="{{ asset('images/logo-victory.png') }}" alt="PT Victory International Futures" class="h-8 w-auto object-contain">
             </div>
             <span class="text-white/90 text-sm tracking-wide">Victory International Futures</span>
         </div>
@@ -110,7 +110,7 @@
 
             {{-- Brand mark versi mobile, cuma muncul kalau layar sempit --}}
             <div class="lg:hidden flex items-center gap-3 mb-10">
-                <img src="{{ asset('images/logo-victory.png') }}" alt="PT Victory International Futures" class="h-9 w-auto object-contain">
+                <img src="{{ asset('images/logo-victory.png') }}" alt="PT Victory International Futures" class="h-11 w-auto object-contain">
                 <span class="text-ink/70 text-sm">Victory International Futures</span>
             </div>
 

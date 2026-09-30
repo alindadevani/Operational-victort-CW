@@ -26,6 +26,7 @@ class CarRequest extends FormRequest
             ],
             'status' => ['required', Rule::in(['tersedia', 'dipinjam'])],
             'keterangan' => ['nullable', 'string', 'max:255'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];
     }
 
@@ -37,6 +38,9 @@ class CarRequest extends FormRequest
             'plat_nomor.unique' => 'Plat nomor sudah terdaftar.',
             'status.required' => 'Status mobil wajib dipilih.',
             'status.in' => 'Status mobil tidak valid.',
+            'foto.image' => 'File foto harus berupa gambar.',
+            'foto.mimes' => 'Foto harus berformat JPG, PNG, atau WEBP.',
+            'foto.max' => 'Ukuran foto maksimal 5 MB.',
         ];
     }
 }
